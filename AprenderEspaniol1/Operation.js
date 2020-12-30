@@ -42,17 +42,19 @@ function Operation() {
   const [opScore, setOpScore] = useState([]);
   const [opState, setOpState] = useState(false);
   const [opCont, setOpCont] = useState(0);
+  const [badResults, setBadResults] = useState([]);
 
   const arrayWords = [6, 8, 7, 0, 9, 1, 2, 4, 3, 5];
   var arrayDisplay = [];
-  var contColor = 0;
+  var contValue = 0;
   var resultCont = 0;
+  var usedWords = [];
   var notaFinal = 0;
   var ids = [];
 
   function fillerWords(num) {
     //console.log("filler")
-    let syllables = ["co", "pe", "be", "ca", "pa", "ju"];
+    let syllables = ["co", "po", "be", "ce", "pi", "ja"];
     let arrayWords = [5, 1, 3, 2, 4, 0];
     let wordsRandom = arrayWords.sort(function () {
       return Math.random() - 0.5;
@@ -71,7 +73,7 @@ function Operation() {
     let splitWord = chosenWord.split("|");
     let reverseWord = splitWord.reverse();
     finalWord.push(reverseWord[1].concat(reverseWord[0]));
-    console.log(finalWord);
+    //console.log(finalWord);
     arrayDisplay.push(reverseWord[1]);
     arrayDisplay.push(reverseWord[0]);
 
@@ -84,38 +86,54 @@ function Operation() {
 
   function changeColor(id) {
     ids.push(id);
-    if (contColor !== 2) {
-      document.getElementById(id).style.color = "#C0C0C0";
-      contColor = contColor + 1;
-    }
+    document.getElementById(id).style.color = "#C0C0C0";
+    contValue = contValue + 1;
   }
 
+  /**function enterSyllable(syllable) {
+    let syllables = [];
+    syllables.push(syllable);
+    if (syllables.length > 2) {
+      opScore.push(0);
+      console.log("toy aqui");
+      resultCont = resultCont + 2;
+    } else {
+      syllables.forEach((element) => {
+        getResult(element);
+      });
+    }
+  }**/
+
   function getResult(syllable) {
-    if (finalWord[cont].includes(syllable) && contColor !== 3) {
+    if (contValue > 2) {
+      badResults.push(1);
+      console.log(badResults);
+    }
+    if (finalWord[cont].includes(syllable)) {
       notaFinal = notaFinal + 50;
       resultCont = resultCont + 1;
-      if (notaFinal === 100) {
+      if (notaFinal === 100 && contValue === 2) {
         opScore.push(100);
-        console.log("estoy en el if principal");
+        //console.log("estoy en el if principal");
         console.log(opScore);
-      } else if (notaFinal === 50 && contColor === 2) {
+      } else if (notaFinal === 50 && contValue === 2) {
         opScore.push(50);
-        console.log("estoy en el primer elif de if principal");
+        //console.log("estoy en el primer elif de if principal");
         console.log(opScore);
-      } else if (notaFinal === 0 && contColor === 2) {
+      } else if (notaFinal === 0 && contValue === 2) {
         opScore.push(0);
-        console.log("estoy en el segundo elif de if principal");
+        //console.log("estoy en el segundo elif de if principal");
         console.log(opScore);
       }
     } else {
       resultCont = resultCont + 1;
-      if (notaFinal === 50 && contColor === 2) {
+      if (notaFinal === 50 && contValue === 2) {
         opScore.push(50);
-        console.log("estoy en el if del else");
+        //console.log("estoy en el if del else");
         console.log(opScore);
-      } else if (notaFinal === 0 && contColor === 2) {
+      } else if (notaFinal === 0 && contValue === 2) {
         opScore.push(0);
-        console.log("estoy en el elif del else");
+        //console.log("estoy en el elif del else");
         console.log(opScore);
       }
     }
@@ -129,31 +147,62 @@ function Operation() {
   }
 
   function nextOP() {
-    if (resultCont === 2) {
-      resultCont = 0;
-      contColor = 0;
-      setCont(cont + 1);
-      setScore(score + notaFinal);
-      setOpCont(opCont + 1);
-      revertColor();
-      if (opCont === 4) {
-        setOpState(true);
+    if (resultCont >= 2) {
+      if (resultCont > 2) {
+        resultCont = 0;
+        contValue = 0;
+        setCont(cont + 1);
+        setScore(score + 0);
+        setOpCont(opCont + 1);
+        revertColor();
+        if (opCont === 4) {
+          setOpState(true);
+        }
+        notaFinal = 0;
+      } else {
+        resultCont = 0;
+        badResults.push(0);
+        contValue = 0;
+        setCont(cont + 1);
+        setScore(score + notaFinal);
+        setOpCont(opCont + 1);
+        revertColor();
+        if (opCont === 4) {
+          setOpState(true);
+        }
+        notaFinal = 0;
       }
-      notaFinal = 0;
       //console.log("Subio nota, ahora tiene: " + score);
     }
   }
 
   function renderResults() {
     let results = [];
-    opScore.forEach((element) => {
+    for (let i = 0; i < opScore.length; i++) {
+      results.push(
+        <ListGroupItem
+          style={{
+            color: opScore[i] === 100 && badResults[i] === 0 ? "green" : "red",
+          }}
+        >
+          {opScore[i] === 100 && badResults[i] === 0 ? (
+            <CheckCircle />
+          ) : (
+            <XCircle />
+          )}{" "}
+          &nbsp;
+          {badResults[i] === 1 ? 0 : opScore[i]} =
+        </ListGroupItem>
+      );
+    }
+    /**opScore.forEach((element) => {
       results.push(
         <ListGroupItem style={{ color: element === 100 ? "green" : "red" }}>
           {element === 100 ? <CheckCircle /> : <XCircle />} &nbsp;
           {element} =
         </ListGroupItem>
       );
-    });
+    });**/
     return results;
   }
 
@@ -188,9 +237,9 @@ function Operation() {
     );
   }
 
-  useEffect(() => {
-    console.log(score);
-  }, [score]);
+  /**useEffect(() => {
+    console.log(opScore);
+  }, [opScore]);**/
   // function renderResults() {}
 
   /**function checkEmpty(){
