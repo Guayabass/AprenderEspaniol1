@@ -1,14 +1,14 @@
-import React from 'react';
-import './AprenderEspaniol1.css'
+import React from "react";
+import "./AprenderEspaniol1.css";
 
-import Operation from './Operation'
+import Operation from "./Operation";
 
-function AprenderEspaniol1(props){
-    return(
+function AprenderEspaniol1(props) {
+  return (
     <>
-       <Operation />
+      <Operation />
     </>
-    )
+  );
 }
 
-export default AprenderEspaniol1
+export default AprenderEspaniol1;
